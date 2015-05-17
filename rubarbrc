@@ -1,0 +1,14 @@
+# vim: set ft=ruby:
+
+run :clock
+
+run :date, 59
+
+run :mem, {respawn: 60}
+
+run :wm do 
+  respawn 61 
+  format { puts 'asdf' }
+end 
+
+# override the name, format functions
