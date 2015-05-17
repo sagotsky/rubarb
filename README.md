@@ -27,12 +27,12 @@ Redraw: swap in last cached line onto template
 Open Questions
 --------------------
 
-# Should the scripts take args?  Instead of date.sh can I call `/usr/bin/date +F...`
-# Include a respawn timeout?  Some scripts will crash.  Others should run once instead of requiring a watch or a loop in each script
-# Error reporting on STDERR?
-# Is format redundant with the template insert coming up later?  Or is it making the template easier to deal with since it's just names instead of logic?
-# How to get output var into format block?  Is that a method on the dsl?
-# Likewise, how to get all those template vars into the template block?  More methods?  Abuse of method_missing?
+1. Should the scripts take args?  Instead of date.sh can I call `/usr/bin/date +F...`
+2. Include a respawn timeout?  Some scripts will crash.  Others should run once instead of requiring a watch or a loop in each script
+3. Error reporting on STDERR?
+4. Is format redundant with the template insert coming up later?  Or is it making the template easier to deal with since it's just names instead of logic?
+5. How to get output var into format block?  Is that a method on the dsl?
+6. Likewise, how to get all those template vars into the template block?  More methods?  Abuse of method_missing?
   instance_exec + @instance_vars perhaps?
 
 Example ruby config (not all these options are implemented - consider this a sketch of what I'd like the config to look like)
