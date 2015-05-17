@@ -2,6 +2,7 @@ Description
 ====================
 
 Rubarb runs a bunch of shell scripts, pieces them together according to a customizable template, and pipes them into your bar of choice.  It was inspired by xmobar, but designed to work independently of any particular WM.  
+
 Goals
 --------------------
 
@@ -12,7 +13,7 @@ This piece of software is deliberately overengineered.  As a rails dev, I don't 
 * Manage several threads
 * Define a plugin system
 * Read from a config file
-** The config file is secretly Ruby, but should be configurable by non-programmers.  Did I mention a DSL?
+ * The config file is secretly Ruby, but should be configurable by non-programmers.  Did I mention a DSL?
 
 Implementation
 --------------------
