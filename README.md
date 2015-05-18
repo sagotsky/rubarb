@@ -2,6 +2,7 @@ Description
 ====================
 
 Rubarb runs a bunch of shell scripts, pieces them together according to a customizable template, and pipes them into your bar of choice.  It was inspired by xmobar, but designed to work independently of any particular WM.  
+
 Goals
 --------------------
 

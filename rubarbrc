@@ -2,13 +2,20 @@
 
 run :clock
 
-run :date, 59
+#run :date, 59
 
-run :mem, {respawn: 60}
+#run :mem, {respawn: 60}
 
-run :wm do 
-  respawn 61 
-  format { puts 'asdf' }
-end 
+#run :wm do 
+  #respawn 61 
+  #format { puts 'asdf' }
+#end 
 
+# class that extends RubarbPlugin and has a run() method can be called to save on forking.
+#plugin :clock do 
+  # what the ehll options tdo  Ihgive a clock?
+#end
 # override the name, format functions
+
+# as long as we're spawning all these scripts might as well manage the bar itself too
+bar "dzen2 -l -xs 0"
