@@ -27,15 +27,20 @@ class Rubarb
   # * shell script continuously or repeatedly writing to stdout (no difference if we assume long processes should respawn)
   # * file/pipe reading in (is stdin a special case?)
   # since there's no one size fits all solution, can we at least get a one size fits all interface for different plugin types?
+  # could IO.select watch file descriptors that were hidden in plugins?  seems like a leaky abstraction.  
+  #   could IO.pipe be used to catch results from a ruby plugin?
   def spawn_threads
     threads = @runners.map do |runner|
       [runner.name, Thread.new { runner.run }]
     end.to_h
-    # instead of threads, why not IO.select?
-    # http://stackoverflow.com/questions/10409140/streaming-data-from-stdout/10409614#10409614
-    # OR PTY. (so that nonflushing scripts can still be read)
 
-    t = threads.each &:join
+    readers = @runners.map(&:io_read)
+    puts "starting select on #{readers.count} readers"
+    ready, _, error = IO.select(readers)
+
+    @runners.find {|r| ready.include? r.io_read }
+
+    #t = threads.each &:join
     binding.pry 
 
     # when a thread joins, do we respawn?  multiple lines of plugin output are confusing right now.  kind of a different paradigm than the continually reading script runner
@@ -51,6 +56,7 @@ end
 
 class Runner
   attr_accessor :name
+  attr_reader :io_read
 
   RUNNER_ATTRS = %i[respawn format]
   RUNNER_ATTRS.each { |attr| attr_accessor attr }
@@ -59,7 +65,7 @@ class Runner
     @name = name
     @rubarb = rubarb
     @plugin = load_plugin(name)
-
+    @io_read, @io_write = IO.pipe # seems like an implementation detail, but we need to call select on them later, so maybe it's relevant?
 
     case respawn_or_options
     when Fixnum then @respawn = respawn_or_options
@@ -74,7 +80,7 @@ class Runner
 
   def run
     loop do 
-      @plugin.run
+      @io_write.puts @plugin.run
       sleep @respawn || 60
     end 
   end
@@ -133,11 +139,11 @@ end
 
 class Rubarb::Script < RubarbPlugin
   def initialize
+    # PTY would probably be best way to get these as they're written
     @process = IO.popen('fortune ; sleep 1 ; fortune ; sleep 1 ; fortune', 'r')
   end
 
   def run
-    binding.pry 
     puts @process.gets
   end
 end 
