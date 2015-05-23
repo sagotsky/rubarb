@@ -1,6 +1,7 @@
 # vim: set ft=ruby:
 
-run :clock
+#run :clock
+run :script
 
 #run :date, 59
 

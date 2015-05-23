@@ -3,8 +3,6 @@
 require 'pry'
 
 class Rubarb
-  attr_accessor :runners
-
   def initialize
     @runners = []
     eval File.read('rubarbrc') # is eval still the best we can do?  
@@ -24,10 +22,21 @@ class Rubarb
 
   end
 
+  # joining threads looks like it's the hard part of this script.  what can the threads possibly be doing?
+  # * ruby method returning a string
+  # * shell script continuously or repeatedly writing to stdout (no difference if we assume long processes should respawn)
+  # * file/pipe reading in (is stdin a special case?)
+  # since there's no one size fits all solution, can we at least get a one size fits all interface for different plugin types?
   def spawn_threads
-    @runners.map do |runner|
+    threads = @runners.map do |runner|
       [runner.name, Thread.new { runner.run }]
     end.to_h
+    # instead of threads, why not IO.select?
+    # http://stackoverflow.com/questions/10409140/streaming-data-from-stdout/10409614#10409614
+    # OR PTY. (so that nonflushing scripts can still be read)
+
+    t = threads.each &:join
+    binding.pry 
 
     # when a thread joins, do we respawn?  multiple lines of plugin output are confusing right now.  kind of a different paradigm than the continually reading script runner
   end
@@ -42,8 +51,7 @@ end
 
 class Runner
   attr_accessor :name
-  attr_accessor :rubarb
-  attr_accessor :plugin
+
   RUNNER_ATTRS = %i[respawn format]
   RUNNER_ATTRS.each { |attr| attr_accessor attr }
 
@@ -65,7 +73,10 @@ class Runner
   end
 
   def run
-    @plugin.run
+    loop do 
+      @plugin.run
+      sleep @respawn || 60
+    end 
   end
 
   def kill
@@ -85,11 +96,11 @@ class Runner
   def load_plugin(name)
     begin 
       klass = Object.const_get("Rubarb::#{name.capitalize}")
+      klass.new if klass.superclass == RubarbPlugin
     rescue 
       STDERR.puts "Could not find plugin: #{name}"
       exit(1)
     end 
-    klass.new if klass.superclass === RubarbPlugin
   end 
 
   # and provide convenience setters for each of the attributes defined in the runner.  yes they can all be blocks right now...
@@ -110,9 +121,6 @@ class RubarbPlugin
   end
 end
 
-class Rubarb::Script < RubarbPlugin
-end
-
 class Rubarb::Reader < RubarbPlugin
 end
 
@@ -123,13 +131,23 @@ class Rubarb::WM < RubarbPlugin
   # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
 end
 
+class Rubarb::Script < RubarbPlugin
+  def initialize
+    @process = IO.popen('fortune ; sleep 1 ; fortune ; sleep 1 ; fortune', 'r')
+  end
+
+  def run
+    binding.pry 
+    puts @process.gets
+  end
+end 
+
 class Rubarb::Clock < RubarbPlugin
   def run
     Time.now
   end
 end
 
-binding.pry 
 bk = Rubarb.new
-bk.spawn_threads
+puts bk.spawn_threads
 #puts bk.ls

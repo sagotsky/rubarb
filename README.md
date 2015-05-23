@@ -11,6 +11,7 @@ This piece of software is deliberately overengineered.  As a rails dev, I don't 
 * Write a DSL
 * Use metaprogramming
 * Manage several threads
+* Manage events
 * Define a plugin system
 * Read from a config file
  * The config file is secretly Ruby, but should be configurable by non-programmers.  Did I mention a DSL?
