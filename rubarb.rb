@@ -10,7 +10,8 @@ class Rubarb
 
     loop do 
       refresh_all_runners
-      puts @runners.map &:output
+      runner_output = @runners.map { |r| [ r.name, r.output ] }
+      puts render_template(runner_output)
     end 
   end
 
@@ -20,12 +21,20 @@ class Rubarb
     @runners << Runner.new(self, *args, &block)
   end
 
-  def plugin(*args, &block)
-
+  def bar(exec_string)
+    # TODO figure out if rubarb should have an option to run a bar as well.  might be convenient to store it in the bar config.
   end
 
-  def bar(exec_string)
+  def template(&block)
+    @template = block
+  end
 
+  def render_template(token_values)
+    token_values.each do |token, value|
+      instance_variable_set "@#{token}", value
+    end
+
+    instance_exec(&@template)
   end
 
   # joining threads looks like it's the hard part of this script.  what can the threads possibly be doing?
@@ -41,10 +50,8 @@ class Rubarb
     end.to_h
   end 
 
-
   def refresh_all_runners # update/refresh/?
     read_array, _, error_array = IO.select(@runners.map(&:io_read))
-    puts "read from #{read_array.count} pipes"
     @runners.find_all{|runner| read_array.include?(runner.io_read) }.each(&:refresh)
   end
 
@@ -109,7 +116,7 @@ class Runner
   end
 
   def output
-    @output.to_s
+    @output.to_s.strip
   end
 
   def to_s
@@ -153,10 +160,18 @@ end
 class Rubarb::StdinReader < RubarbPlugin
 end
 
-class Rubarb::Wm < RubarbPlugin
+#class Rubarb::Wm < RubarbPlugin
   # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
+# end 
+
+class Rubarb::Counter < RubarbPlugin
+  # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
+  def initialize
+    @c = 0
+  end
+  
   def run
-    puts 'wm'
+    @c += 1
   end
 end
 
