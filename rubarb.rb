@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'pry'
+require 'ostruct'
 
 class Rubarb
   def initialize
@@ -10,7 +11,7 @@ class Rubarb
 
     loop do 
       refresh_all_runners
-      runner_output = @runners.map { |r| [ r.name, r.output ] }
+      runner_output = @runners.map { |r| [ r.name, r.output ] }.to_h
       puts render_template(runner_output)
     end 
   end
@@ -30,11 +31,8 @@ class Rubarb
   end
 
   def render_template(token_values)
-    token_values.each do |token, value|
-      instance_variable_set "@#{token}", value
-    end
-
-    instance_exec(&@template)
+    token_values = OpenStruct.new token_values
+    token_values.instance_exec(&@template)
   end
 
   # joining threads looks like it's the hard part of this script.  what can the threads possibly be doing?
@@ -156,7 +154,7 @@ class RubarbPlugin
 
   # turns output into string for display.
   def format(output)
-    @output.to_s.strip
+    output.to_s.strip
   end
 end
 
