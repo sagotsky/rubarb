@@ -15,6 +15,7 @@ This piece of software is deliberately overengineered.  As a rails dev, I don't 
 * Define a plugin system
 * Read from a config file
  * The config file is secretly Ruby, but should be configurable by non-programmers.  Did I mention a DSL?
+* Use OOP best practices from Sandi Metz's Practical Object-Oriented-design in Ruby
 
 Implementation
 --------------------
