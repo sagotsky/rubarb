@@ -17,6 +17,18 @@ This piece of software is deliberately overengineered.  As a rails dev, I don't 
  * The config file is secretly Ruby, but should be configurable by non-programmers.  Did I mention a DSL?
 * Use OOP best practices from Sandi Metz's Practical Object-Oriented-design in Ruby
 
+TODO
+--------------------
+
+1. Script runner plugin
+2. File reader plugin
+3. Break up the giant file
+4. Gemify
+5. ~~Figure out rc file syntax~~ (still needs finalizing - cutting back to one syntax would make life easier...)
+6. ~~Pass vars to template~~
+7. ~~Block until a thread is ready~~ Yay IO.select
+
+
 Implementation
 --------------------
 
