@@ -6,6 +6,12 @@ class Rubarb
   def initialize
     @runners = []
     eval File.read('rubarbrc') # is eval still the best we can do?  
+    @threads = runner_threads
+
+    loop do 
+      refresh_all_runners
+      puts @runners.map &:output
+    end 
   end
 
   # maybe com cmd or something would be better?  run seems disingenous since it's just registering them.
@@ -29,21 +35,17 @@ class Rubarb
   # since there's no one size fits all solution, can we at least get a one size fits all interface for different plugin types?
   # could IO.select watch file descriptors that were hidden in plugins?  seems like a leaky abstraction.  
   #   could IO.pipe be used to catch results from a ruby plugin?
-  def spawn_threads
-    threads = @runners.map do |runner|
+  def runner_threads
+    @runners.map do |runner|
       [runner.name, Thread.new { runner.run }]
     end.to_h
+  end 
 
-    readers = @runners.map(&:io_read)
-    puts "starting select on #{readers.count} readers"
-    ready, _, error = IO.select(readers)
 
-    @runners.find {|r| ready.include? r.io_read }
-
-    #t = threads.each &:join
-    binding.pry 
-
-    # when a thread joins, do we respawn?  multiple lines of plugin output are confusing right now.  kind of a different paradigm than the continually reading script runner
+  def refresh_all_runners # update/refresh/?
+    read_array, _, error_array = IO.select(@runners.map(&:io_read))
+    puts "read from #{read_array.count} pipes"
+    @runners.find_all{|runner| read_array.include?(runner.io_read) }.each(&:refresh)
   end
 
   # is output going to need its own thread?
@@ -52,6 +54,9 @@ class Rubarb
     @runners.map &:to_s
   end
 
+  #def exit
+    #@runner.values.each &:join
+  #end 
 end
 
 class Runner
@@ -64,8 +69,16 @@ class Runner
   def initialize(rubarb, name, respawn_or_options = nil, &block)
     @name = name
     @rubarb = rubarb
+    @output = ''
     @plugin = load_plugin(name)
     @io_read, @io_write = IO.pipe # seems like an implementation detail, but we need to call select on them later, so maybe it's relevant?
+
+    ## registering options as attrs still seems reasonable (and wise if I want to allow type checking), but doing it in the class_eval didn't let the instance_exec work.  still not sure why.
+    # @plugin.options.each do |option|
+    #   self.class.class_eval do
+    #     attr_accessor option
+    #   end 
+    # end
 
     case respawn_or_options
     when Fixnum then @respawn = respawn_or_options
@@ -80,6 +93,8 @@ class Runner
 
   def run
     loop do 
+      # can we get options from the plugin into run at this point?
+      # if optoins is a class method on the plugin, we can register them first, then get them from the dsl and init it with them.
       @io_write.puts @plugin.run
       sleep @respawn || 60
     end 
@@ -89,8 +104,12 @@ class Runner
 
   end
 
-  def output
+  def refresh
+    @output = @io_read.gets
+  end
 
+  def output
+    @output.to_s
   end
 
   def to_s
@@ -110,14 +129,15 @@ class Runner
   end 
 
   # and provide convenience setters for each of the attributes defined in the runner.  yes they can all be blocks right now...
-  RUNNER_ATTRS.each do |attr|
-    define_method attr do |value = nil, &block|
-      var = "@#{attr}"
-      instance_variable_set(var, value ) if value
-      instance_variable_set(var, block ) if block
-      instance_variable_get(var)
-    end
-  end
+  # TODO is this really wise?  using `respawn = 60` is still readable and not that much more verbose...
+  # RUNNER_ATTRS.each do |attr|
+  #   define_method attr do |value = nil, &block|
+  #     var = "@#{attr}"
+  #     instance_variable_set(var, value ) if value
+  #     instance_variable_set(var, block ) if block
+  #     instance_variable_get(var)
+  #   end
+  # end
 end
 
 class RubarbPlugin
@@ -133,8 +153,11 @@ end
 class Rubarb::StdinReader < RubarbPlugin
 end
 
-class Rubarb::WM < RubarbPlugin
+class Rubarb::Wm < RubarbPlugin
   # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
+  def run
+    puts 'wm'
+  end
 end
 
 class Rubarb::Script < RubarbPlugin
@@ -154,6 +177,4 @@ class Rubarb::Clock < RubarbPlugin
   end
 end
 
-bk = Rubarb.new
-puts bk.spawn_threads
-#puts bk.ls
+Rubarb.new
