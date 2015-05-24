@@ -116,7 +116,8 @@ class Runner
   end
 
   def output
-    @output.to_s.strip
+    #@output.to_s.strip
+    @plugin.format @output
   end
 
   def to_s
@@ -151,6 +152,11 @@ class RubarbPlugin
   def run
     # should run wrap some internal runner thing?  then I could have other stuff trigger afterwards
     raise "Implement run in your RubarbPlugin class"
+  end
+
+  # turns output into string for display.
+  def format(output)
+    @output.to_s.strip
   end
 end
 
