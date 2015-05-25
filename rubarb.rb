@@ -35,13 +35,6 @@ class Rubarb
     token_values.instance_exec(&@template)
   end
 
-  # joining threads looks like it's the hard part of this script.  what can the threads possibly be doing?
-  # * ruby method returning a string
-  # * shell script continuously or repeatedly writing to stdout (no difference if we assume long processes should respawn)
-  # * file/pipe reading in (is stdin a special case?)
-  # since there's no one size fits all solution, can we at least get a one size fits all interface for different plugin types?
-  # could IO.select watch file descriptors that were hidden in plugins?  seems like a leaky abstraction.  
-  #   could IO.pipe be used to catch results from a ruby plugin?
   def runner_threads
     @runners.map do |runner|
       [runner.name, Thread.new { runner.run }]
@@ -52,8 +45,6 @@ class Rubarb
     read_array, _, error_array = IO.select(@runners.map(&:io_read))
     @runners.find_all{|runner| read_array.include?(runner.io_read) }.each(&:refresh)
   end
-
-  # is output going to need its own thread?
 
   def ls
     @runners.map &:to_s
@@ -68,93 +59,75 @@ class Runner
   attr_accessor :name
   attr_reader :io_read
 
-  RUNNER_ATTRS = %i[respawn format]
-  RUNNER_ATTRS.each { |attr| attr_accessor attr }
-
   def initialize(rubarb, name, respawn_or_options = nil, &block)
     @name = name
     @rubarb = rubarb
     @output = ''
-    @plugin = load_plugin(name)
+    @plugin = load_plugin(name, block)
     @io_read, @io_write = IO.pipe # seems like an implementation detail, but we need to call select on them later, so maybe it's relevant?
 
-    ## registering options as attrs still seems reasonable (and wise if I want to allow type checking), but doing it in the class_eval didn't let the instance_exec work.  still not sure why.
-    # @plugin.options.each do |option|
-    #   self.class.class_eval do
-    #     attr_accessor option
-    #   end 
-    # end
-
-    case respawn_or_options
-    when Fixnum then @respawn = respawn_or_options
-    when Hash 
-      RUNNER_ATTRS.each do |attr|
-        send attr, respawn_or_options.fetch(attr, nil)
-      end 
-    end
-
-    instance_exec(&block) if block_given?
+    # TODO: do we want to keep multiple syntaxes?  the refresh shorthand is nice.  dunno if the array one (or the dsl one) is better than the other.
+  #  case respawn_or_options
+  #   when Fixnum then @respawn = respawn_or_options
+  #   when Hash 
+  #     RUNNER_ATTRS.each do |attr|
+  #       send attr, respawn_or_options.fetch(attr, nil)
+  #     end 
+  #   end
   end
 
   def run
     loop do 
-      # can we get options from the plugin into run at this point?
-      # if optoins is a class method on the plugin, we can register them first, then get them from the dsl and init it with them.
       @io_write.puts @plugin.run
-      sleep @respawn || 60
+      sleep @plugin.respawn
     end 
   end
 
-  def kill
-
-  end
+  # def kill
+  # end
 
   def refresh
     @output = @io_read.gets
   end
 
   def output
-    #@output.to_s.strip
     @plugin.format @output
-  end
-
-  def to_s
-    "#{@name} #{RUNNER_ATTRS.map{|a| [a, send(a)]}.to_h}"
   end
 
   private
 
-  def load_plugin(name)
+  def load_plugin(name, block)
     begin 
       klass = Object.const_get("Rubarb::#{name.capitalize}")
-      klass.new if klass.superclass == RubarbPlugin
+      if klass.superclass == RubarbPlugin
+        plugin = klass.new
+        plugin.instance_exec(&block) if block
+      end 
+      plugin
     rescue 
+      binding.pry  
+      # shouldn't this be a catch so we can see where the above failed?
+      # three errors: finding plugin, init'ing plugin, running block.  do them separately.
       STDERR.puts "Could not find plugin: #{name}"
       exit(1)
     end 
   end 
-
-  # and provide convenience setters for each of the attributes defined in the runner.  yes they can all be blocks right now...
-  # TODO is this really wise?  using `respawn = 60` is still readable and not that much more verbose...
-  # RUNNER_ATTRS.each do |attr|
-  #   define_method attr do |value = nil, &block|
-  #     var = "@#{attr}"
-  #     instance_variable_set(var, value ) if value
-  #     instance_variable_set(var, block ) if block
-  #     instance_variable_get(var)
-  #   end
-  # end
 end
 
 class RubarbPlugin
   def run
-    # should run wrap some internal runner thing?  then I could have other stuff trigger afterwards
     raise "Implement run in your RubarbPlugin class"
   end
 
-  # turns output into string for display.
+  # turns output into string for display.  does it make sense for a plugin to override the cal to the lambda?
   def format(output)
-    output.to_s.strip
+    output = output.to_s.strip
+    output = @format.call(output) if @format
+    output
+  end
+
+  def respawn
+    @respawn || 60
   end
 end
 
@@ -168,8 +141,8 @@ end
   # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
 # end 
 
+# this plugin is stupid, but a decent example if you want to watch the cache update on schedule
 class Rubarb::Counter < RubarbPlugin
-  # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
   def initialize
     @c = 0
   end

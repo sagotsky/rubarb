@@ -1,18 +1,21 @@
 # vim: set ft=ruby:
 
+run :counter do 
+  @respawn = 1
+  @color = 'red'
+  @format = -> (txt) { txt*2 }
+end 
+
 run :clock do
-  @respawn = 5
+  @respawn = 2
 end
+
 #run :script
 
 #run :date, 59
 
 #run :mem, {respawn: 60}
 
-run :counter do 
-  @respawn = 1
-  #format { puts 'asdf' }
-end 
 
 # class that extends RubarbPlugin and has a run() method can be called to save on forking.
 #plugin :clock do 
