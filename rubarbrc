@@ -1,9 +1,9 @@
 # vim: set ft=ruby:
 
 run :counter do 
-  @respawn = 4
+  @respawn = 1
   @color = 'red'
-  @format = -> (txt) { txt*2 }
+  #@format = -> (txt) { txt*2 }
 end 
 
 run :clock do

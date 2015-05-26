@@ -12,7 +12,7 @@ class Rubarb
     loop do 
       refresh_all_runners
       runner_output = @runners.map { |r| [ r.name, r.output ] }.to_h
-      puts render_template(runner_output)
+      puts @template.render(runner_output)
     end 
   end
 
@@ -27,12 +27,7 @@ class Rubarb
   end
 
   def template(&block)
-    @template = block
-  end
-
-  def render_template(token_values)
-    token_values = OpenStruct.new token_values
-    token_values.instance_exec(&@template)
+    @template = RubarbTemplate.new(block)
   end
 
   def runner_threads
@@ -112,6 +107,17 @@ class Runner
       STDERR.puts "Could not find plugin: #{name}"
       exit(1)
     end 
+  end 
+end
+
+class RubarbTemplate
+  def initialize(block)
+    @template = block
+  end
+
+  def render(token_values = {})
+    token_values = OpenStruct.new token_values
+    token_values.instance_exec(&@template)
   end 
 end
 
