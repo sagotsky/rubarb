@@ -1,16 +1,19 @@
 # vim: set ft=ruby:
 
 run :counter do 
-  @respawn = 1
+  @respawn = 4
   @color = 'red'
   @format = -> (txt) { txt*2 }
 end 
 
 run :clock do
-  @respawn = 2
+  @respawn = 20
 end
 
-#run :script
+run :script do 
+  @exec = 'date ; sleep 2 ; date'
+  @respawn = 0 
+end
 
 #run :date, 59
 
@@ -27,5 +30,5 @@ end
 bar "dzen2 -l -xs 0"
 
 template do 
-  "#{clock} - #{counter}"
+  "#{clock} - #{counter} :: #{script}"
 end

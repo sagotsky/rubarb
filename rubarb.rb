@@ -59,6 +59,7 @@ class Runner
   attr_accessor :name
   attr_reader :io_read
 
+  # respawn or options seems nice, but is respawn really always option number one?  a shell script that I don't expect to respawn would have a file name come first.
   def initialize(rubarb, name, respawn_or_options = nil, &block)
     @name = name
     @rubarb = rubarb
@@ -153,14 +154,18 @@ class Rubarb::Counter < RubarbPlugin
 end
 
 class Rubarb::Script < RubarbPlugin
-  def initialize
-    # PTY would probably be best way to get these as they're written
-    @process = IO.popen('fortune ; sleep 1 ; fortune ; sleep 1 ; fortune', 'r')
+  def run
+    process.gets || begin
+      @process = nil
+      process.gets
+    end
   end
 
-  def run
-    puts @process.gets
-  end
+  private
+
+  def process
+    @process ||= IO.popen(@exec) # how about if it crashes?  
+  end 
 end 
 
 class Rubarb::Clock < RubarbPlugin
