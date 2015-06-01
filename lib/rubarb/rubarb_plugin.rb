@@ -1,4 +1,15 @@
 class RubarbPlugin
+  @@options = {format: nil, respawn: nil}
+
+  def self.options
+    # todo: somehow differentiate that format takes a proc
+    @@options
+  end
+
+  def self.add_option(name, settings = nil)
+    @@options[name] = settings
+  end
+
   def run
     raise "Implement run in your RubarbPlugin class"
   end
@@ -14,9 +25,9 @@ class RubarbPlugin
     @respawn || 60
   end
 
-  def self.option(name)
-    define_method(name) do |value|
-      instance_variable_set("@#{name}", value)    
+  def initialize(options)
+    @@options.keys.each do |option|
+      instance_variable_set("@#{option}", options.fetch(option, nil))
     end
   end
 end
@@ -33,9 +44,10 @@ end
 
 # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
 class Counter < RubarbPlugin
-  #option :color
+  add_option :color
 
-  def initialize
+  def initialize(options)
+    super(options)
     @c = 0
   end
   

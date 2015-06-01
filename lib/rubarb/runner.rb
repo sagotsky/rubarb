@@ -42,28 +42,13 @@ class Runner
   private
 
   def load_plugin(name, block)
-    begin 
-      klass = Object.const_get("#{name.capitalize}")
-      if klass.superclass == RubarbPlugin
-        plugin = klass.new
-        binding.pry 
-        #plugin.instance_exec(&block) if block
-        # 
-        # just playing with the object exec thing
-        #c = InstanceVarConfigReader.parse(block) if block
-        options = %i[respawn color format]
-        c = MetaConfigReader.new(options)
-        c.parse(block) if block
-        binding.pry 
-        # if this works, we can instnantiate off the block instead of setting the vars in the plugin instance
-      end 
-      plugin
-    # rescue 
-    #   binding.pry  
-    #   # shouldn't this be a catch so we can see where the above failed?
-    #   # three errors: finding plugin, init'ing plugin, running block.  do them separately.
-    #   STDERR.puts "Could not find plugin: #{name}"
-    #   exit(1)
+    klass = Object.const_get("#{name.capitalize}")
+    return unless klass.superclass == RubarbPlugin
+    options = if block
+      #MetaConfigReader.new(klass.options).parse(block)
+      InstanceVarConfigReader.parse(block)
     end 
+
+    plugin = klass.new(options)
   end 
 end

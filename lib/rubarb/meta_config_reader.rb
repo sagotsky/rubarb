@@ -22,7 +22,7 @@ class MetaConfigReader
   end
 
   def responds_to?(method_name)
-    @options.has_key? method_name
+    @options.has_key?(method_name) || super 
   end
 
   def initialize(options)
