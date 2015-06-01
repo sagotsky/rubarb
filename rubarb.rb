@@ -57,6 +57,7 @@ class Runner
   # respawn or options seems nice, but is respawn really always option number one?  a shell script that I don't expect to respawn would have a file name come first.
   def initialize(rubarb, name, respawn_or_options = nil, &block)
     @name = name
+    @token = name # unless otherwise specified
     @rubarb = rubarb
     @output = ''
     @plugin = load_plugin(name, block)
@@ -136,6 +137,12 @@ class RubarbPlugin
   def respawn
     @respawn || 60
   end
+
+  def self.option(name)
+    define_method(name) do |value|
+      instance_variable_set("@#{name}", value)    
+    end
+  end
 end
 
 class Rubarb::Reader < RubarbPlugin
@@ -150,6 +157,8 @@ end
 
 # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
 class Rubarb::Counter < RubarbPlugin
+  #option :color
+
   def initialize
     @c = 0
   end
@@ -167,7 +176,17 @@ class Rubarb::Script < RubarbPlugin
     end
   end
 
+  def respawn
+    still_running? ? 0 : super
+  end
+
   private
+
+  def still_running?
+    # if the last getrs is nil?  is there better?
+    binding.pry 
+    false
+  end
 
   def process
     @process ||= IO.popen(@exec) # how about if it crashes?  

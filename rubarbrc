@@ -12,8 +12,13 @@ end
 
 run :script do 
   @exec = 'date ; sleep 2 ; date'
-  @respawn = 0 
+  @respawn = 30
 end
+
+# is this syntax nicer?
+# can this work if Clcok is really Rubarb::Plugins::Clock?
+#run Clock do
+#end
 
 #run :date, 59
 
