@@ -1,9 +1,14 @@
 # vim: set ft=ruby:
 
+# isn't `run :counter &block` the same as `format block`  could a single dsl work both ways if it knew about the options in advance?
 run :counter do 
-  @respawn = 1
-  @color = 'red'
+  #@respawn = 1
+  #@color = 'red'
   #@format = -> (txt) { txt*2 }
+  respawn 1
+  color 'red'
+  #format -> (txt) { txt*2 }
+  format { |txt| txt*2 }
 end 
 
 run :clock do

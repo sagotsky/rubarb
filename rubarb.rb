@@ -98,15 +98,24 @@ class Runner
       klass = Object.const_get("Rubarb::#{name.capitalize}")
       if klass.superclass == RubarbPlugin
         plugin = klass.new
-        plugin.instance_exec(&block) if block
+        binding.pry 
+        #plugin.instance_exec(&block) if block
+        # 
+        # just playing with the object exec thing
+        #c = InstanceVarConfigReader.parse(block) if block
+        options = %i[respawn color format]
+        c = MetaConfigReader.new(options)
+        c.parse(block) if block
+        binding.pry 
+        # if this works, we can instnantiate off the block instead of setting the vars in the plugin instance
       end 
       plugin
-    rescue 
-      binding.pry  
-      # shouldn't this be a catch so we can see where the above failed?
-      # three errors: finding plugin, init'ing plugin, running block.  do them separately.
-      STDERR.puts "Could not find plugin: #{name}"
-      exit(1)
+    # rescue 
+    #   binding.pry  
+    #   # shouldn't this be a catch so we can see where the above failed?
+    #   # three errors: finding plugin, init'ing plugin, running block.  do them separately.
+    #   STDERR.puts "Could not find plugin: #{name}"
+    #   exit(1)
     end 
   end 
 end
@@ -120,6 +129,67 @@ class RubarbTemplate
     token_values = OpenStruct.new token_values
     token_values.instance_exec(&@template)
   end 
+end
+
+# a couple config parser strategies: (todo: really break up files.  seriously)
+# config parser expriement for reading blocks with instance vars
+=begin
+run :counter do 
+  @respawn = 1
+  @color = 'red'
+  @format = -> (txt) { txt*2 }
+end 
+=end
+# catches instance vars from a block, returns them as an array
+# the goal is to wrap the block in an object so it can't touch much else
+class InstanceVarConfigReader
+  # or define some methods based on the options provided by plugin.options
+  # advantage: only keeps a fixed set of options, allows validation.
+  def self.parse(block)
+    obj = Object.new.tap {|obj| obj.instance_exec &block}
+    obj.instance_variables.map do |var|
+      [var.to_s.tr('@','').to_sym, obj.instance_variable_get(var)]
+    end.to_h
+  end
+end
+
+# the metapgoramming version of InstanceVarConfigReader
+# config parser expriement for reading blocks with instance vars
+=begin
+run :counter do 
+  respawn  1
+  color  'red'
+  format -> (txt) { txt*2 } # does this way work or can it just be a block?
+end 
+=end
+
+class MetaConfigReader
+  def method_missing(method_name, *args, &block)
+    if responds_to?(method_name)
+      @options[method_name] = args.first
+    else 
+      super
+    end
+  end
+
+  def format(&block)
+    @options[:format] = block
+  end
+
+  def responds_to?(method_name)
+    @options.has_key? method_name
+  end
+
+  def initialize(options)
+    # todo: look into casting, defaults
+    # format(&block) doesn't seem to work with method_missing.  that's an argument for define_method
+    @options = options.map{|o| [o, nil]}.to_h || {}
+  end
+
+  def parse(block)
+    self.instance_exec(&block)
+    @options
+  end
 end
 
 class RubarbPlugin
