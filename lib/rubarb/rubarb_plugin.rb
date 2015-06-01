@@ -57,10 +57,12 @@ class Counter < RubarbPlugin
 end
 
 class Script < RubarbPlugin
+  add_option :exec
+
   def run
     process.gets || begin
-      @process = nil
-      process.gets
+      process.close
+      nil # returning this nil is killing the cache.  it'd be nice to get another 'respawn ; process' in here without calling our own respawn.
     end
   end
 
@@ -71,12 +73,11 @@ class Script < RubarbPlugin
   private
 
   def still_running?
-    # if the last getrs is nil?  is there better?
-    binding.pry 
-    false
+    !(@process.nil? || @process.closed?)
   end
 
   def process
+    @process = nil if (@process && @process.closed?)
     @process ||= IO.popen(@exec) # how about if it crashes?  
   end 
 end 

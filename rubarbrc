@@ -2,7 +2,7 @@
 
 # isn't `run :counter &block` the same as `format block`  could a single dsl work both ways if it knew about the options in advance?
 run :counter do 
-  @respawn = 1
+  @respawn = 30
   @color = 'red'
   @format = -> (txt) { txt*2 }
   #respawn 1
@@ -11,12 +11,12 @@ run :counter do
 end 
 
 run :clock do
-  @respawn = 2
+  @respawn = 1
 end
 
 run :script do 
-  @exec = 'date ; sleep 2 ; date'
-  @respawn = 30
+  @exec = 'fortune ; sleep 1; date ; sleep 2; fortune'
+  @respawn = 5
 end
 
 # is this syntax nicer?

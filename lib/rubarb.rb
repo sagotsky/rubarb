@@ -9,8 +9,9 @@ class Rubarb
     @runners = []
     eval File.read('../rubarbrc') # is eval still the best we can do?  
     @threads = runner_threads
+    @running = true
 
-    loop do 
+    while @running do 
       refresh_all_runners
       runner_output = @runners.map { |r| [ r.name, r.output ] }.to_h
       puts @template.render(runner_output)
