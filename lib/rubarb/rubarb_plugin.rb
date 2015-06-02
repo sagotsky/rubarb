@@ -48,39 +48,34 @@ class Counter < RubarbPlugin
 
   def initialize(options)
     super(options)
-    @c = 0
+    @counter = 0
   end
   
   def run
-    @c += 1
+    @counter += 1
   end
 end
+
 
 class Script < RubarbPlugin
   add_option :exec
 
   def run
-    process.gets || begin
-      process.close
-      nil # returning this nil is killing the cache.  it'd be nice to get another 'respawn ; process' in here without calling our own respawn.
-    end
+    process.gets # still might need to catch something here.   TODO try busted scripts
   end
 
   def respawn
-    still_running? ? 0 : super
+    @process.eof? ? super : 0
   end
 
   private
 
-  def still_running?
-    !(@process.nil? || @process.closed?)
-  end
-
   def process
-    @process = nil if (@process && @process.closed?)
-    @process ||= IO.popen(@exec) # how about if it crashes?  
+    @process = @process.close if @process && @process.eof?
+    @process ||= IO.popen(@exec) 
   end 
 end 
+
 
 class Clock < RubarbPlugin
   def run
