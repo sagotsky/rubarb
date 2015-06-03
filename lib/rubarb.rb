@@ -53,6 +53,4 @@ class Rubarb
   #end 
 end
 
-
-
 Rubarb.new

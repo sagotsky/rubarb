@@ -3,9 +3,9 @@ class PluginDispatcher
   attr_reader :io_read
 
   # respawn or options seems nice, but is respawn really always option number one?  a shell script that I don't expect to respawn would have a file name come first.
-  def initialize(rubarb, name, respawn_or_options = nil, &block)
+  def initialize(rubarb, name, &block)
+    # https://robots.thoughtbot.com/ruby-2-keyword-arguments
     @name = name
-    @token = name # unless otherwise specified
     @rubarb = rubarb
     @output = ''
     @plugin = load_plugin(name, block)
