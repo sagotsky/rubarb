@@ -17,11 +17,12 @@ class MetaConfigReader
     end
   end
 
+  # 
   def format(&block)
     @options[:format] = block
   end
 
-  def responds_to?(method_name)
+  def respond_to_missing?(method_name)
     @options.has_key?(method_name) || super 
   end
 

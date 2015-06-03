@@ -20,14 +20,14 @@ This piece of software is deliberately overengineered.  As a rails dev, I don't 
 TODO
 --------------------
 
-1. Script runner plugin
+1. ~~Script runner plugin~~
 2. File reader plugin
-3. Break up the giant file
+3. ~~Break up the giant file~~
 4. Gemify
 5. ~~Figure out rc file syntax~~ (still needs finalizing - cutting back to one syntax would make life easier...  maybe use class names instead of symbols?)
 6. ~~Pass vars to template~~
 7. ~~Block until a thread is ready~~ Yay IO.select
-8. Rename runner dispatcher
+8. ~~Rename runner dispatcher~~
 9. Nested classes?
 
 

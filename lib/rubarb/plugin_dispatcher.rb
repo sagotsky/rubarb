@@ -1,4 +1,4 @@
-class Runner
+class PluginDispatcher
   attr_accessor :name
   attr_reader :io_read
 
@@ -10,15 +10,6 @@ class Runner
     @output = ''
     @plugin = load_plugin(name, block)
     @io_read, @io_write = IO.pipe # seems like an implementation detail, but we need to call select on them later, so maybe it's relevant?
-
-    # TODO: do we want to keep multiple syntaxes?  the refresh shorthand is nice.  dunno if the array one (or the dsl one) is better than the other.
-  #  case respawn_or_options
-  #   when Fixnum then @respawn = respawn_or_options
-  #   when Hash 
-  #     RUNNER_ATTRS.each do |attr|
-  #       send attr, respawn_or_options.fetch(attr, nil)
-  #     end 
-  #   end
   end
 
   def run
@@ -27,9 +18,6 @@ class Runner
       sleep @plugin.respawn
     end 
   end
-
-  # def kill
-  # end
 
   def refresh
     @output = @io_read.gets
