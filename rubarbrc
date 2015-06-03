@@ -36,7 +36,7 @@ end
 # override the name, format functions
 
 # as long as we're spawning all these scripts might as well manage the bar itself too
-bar "dzen2 -l -xs 0"
+bar "dzen2 -ta l -xs 0"
 
 template do 
   "#{clock} - #{counter} :: #{script}"

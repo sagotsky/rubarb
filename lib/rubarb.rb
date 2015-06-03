@@ -10,12 +10,12 @@ class Rubarb
     @dispatchers = []
     eval File.read('../rubarbrc') # is eval still the best we can do?  
     @threads = dispatcher_threads
-    @running = true
+    @running = @threads.any?
 
     while @running do 
       refresh_dispatchers
       plugin_output = @dispatchers.map { |r| [ r.name, r.output ] }.to_h
-      puts @template.render(plugin_output)
+      show @template.render(plugin_output)
     end 
   end
 
@@ -25,12 +25,16 @@ class Rubarb
     @dispatchers << PluginDispatcher.new(self, *args, &block)
   end
 
-  def bar(exec_string)
-    # TODO figure out if rubarb should have an option to run a bar as well.  might be convenient to store it in the bar config.
+  def bar(exec_string = nil)
+    @bar ||= IO.popen(exec_string, 'w')
   end
 
   def template(&block)
     @template = RubarbTemplate.new(block)
+  end
+
+  def show(text)
+    (bar || STDOUT).puts text
   end
 
   def dispatcher_threads
