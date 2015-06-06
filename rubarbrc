@@ -1,5 +1,18 @@
 # vim: set ft=ruby:
 
+
+clock {
+  respawn 5
+}
+clock 2
+
+script do 
+  exec 'fortune ; sleep 1; date ; sleep 2; fortune'
+  respawn 5
+  format -> {txt.upcase}
+end
+
+__END__
 # isn't `run :counter &block` the same as `format block`  could a single dsl work both ways if it knew about the options in advance?
 run :counter do 
   @respawn = 30
@@ -36,7 +49,8 @@ end
 # override the name, format functions
 
 # as long as we're spawning all these scripts might as well manage the bar itself too
-bar "dzen2 -ta l -xs 0"
+#bar "dzen2 -ta l -xs 0"
+bar "bar -p"
 
 template do 
   "#{clock} - #{counter} :: #{script}"

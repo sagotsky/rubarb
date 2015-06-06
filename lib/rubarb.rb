@@ -8,14 +8,29 @@ Dir.glob('rubarb/*').each { |file| require_relative file }
 class Rubarb
   def initialize
     @dispatchers = []
-    eval File.read('../rubarbrc') # is eval still the best we can do?  
+    #eval File.read('../rubarbrc') # is eval still the best we can do?  
+    #instance_eval File.read( '../rubarbrc')
+    rc = ClassNameMethodConfigReader.new(RubarbPlugin.plugins)
+    config = rc.parse_file('../rubarbrc').config
+
+    @dispatchers = config.map do |name, *args|
+      PluginDispatcher.new(self, *args, &block)
+    end
     @threads = dispatcher_threads
     @running = @threads.any?
+    # if rubarb is doing a weird syntax setting plugin reader, why not reuse it in plugins?
 
     while @running do 
       refresh_dispatchers
       plugin_output = @dispatchers.map { |r| [ r.name, r.output ] }.to_h
       show @template.render(plugin_output)
+    end 
+  end
+
+  # TODO: this
+  RubarbPlugin.plugins.each do |plugin|
+    define_method plugin do |&block|
+      plugin
     end 
   end
 
@@ -26,7 +41,7 @@ class Rubarb
   end
 
   def bar(exec_string = nil)
-    @bar ||= IO.popen(exec_string, 'w')
+    @bar ||= IO.popen(exec_string, 'w') rescue nil
   end
 
   def template(&block)
