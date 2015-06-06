@@ -1,13 +1,23 @@
 class RubarbPlugin
   @@options = {format: nil, respawn: nil}
+  @@plugins = []
 
   def self.options
     # todo: somehow differentiate that format takes a proc
-    @@options
+    @@options.dup
   end
 
   def self.add_option(name, settings = nil)
     @@options[name] = settings
+  end
+
+  # does this have to be here?  I don't want it getting inherited, but it needs to be on the plugin to register the ohters.  maybe the < self descendents isn't so bad after all
+  def self.inherited(child)
+    @@plugins << child.name
+  end
+
+  def self.plugins
+    @@plugins.dup
   end
 
   def run
