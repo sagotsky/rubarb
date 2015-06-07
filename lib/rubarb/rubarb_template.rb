@@ -1,5 +1,5 @@
 class RubarbTemplate
-  def initialize(block)
+  def initialize(&block)
     @template = block
   end
 

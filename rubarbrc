@@ -4,12 +4,17 @@
 clock {
   respawn 5
 }
-clock 2
 
-script do 
-  exec 'fortune ; sleep 1; date ; sleep 2; fortune'
+script {
+  sh 'fortune ; sleep 1; date ; sleep 2; fortune'
   respawn 5
-  format -> {txt.upcase}
+  #format -> {txt.upcase}
+}
+
+bar "bar -p"
+
+template do 
+  "#{clock} - #{counter} :: #{script}"
 end
 
 __END__

@@ -1,23 +1,13 @@
-class RubarbPlugin
-  @@options = {format: nil, respawn: nil}
-  @@plugins = []
+class Rubarb::RubarbPlugin
+  @@options = %i[format respawn]
 
   def self.options
     # todo: somehow differentiate that format takes a proc
     @@options.dup
   end
 
-  def self.add_option(name, settings = nil)
-    @@options[name] = settings
-  end
-
-  # does this have to be here?  I don't want it getting inherited, but it needs to be on the plugin to register the ohters.  maybe the < self descendents isn't so bad after all
-  def self.inherited(child)
-    @@plugins << child.name
-  end
-
-  def self.plugins
-    @@plugins.dup
+  def self.add_option(name)
+    @@options << name
   end
 
   def run
@@ -36,24 +26,24 @@ class RubarbPlugin
   end
 
   def initialize(options)
-    @@options.keys.each do |option|
+    @@options.each do |option|
       instance_variable_set("@#{option}", options.fetch(option, nil))
     end
   end
 end
 
-class Reader < RubarbPlugin
+class Rubarb::Reader < Rubarb::RubarbPlugin
 end
 
-class StdinReader < RubarbPlugin
+class Rubarb::StdinReader < Rubarb::RubarbPlugin
 end
 
-#class Wm < RubarbPlugin
+#class Rubarb::Wm < Rubarb::RubarbPlugin
   # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
 # end 
 
 # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
-class Counter < RubarbPlugin
+class Rubarb::Counter < Rubarb::RubarbPlugin
   add_option :color
 
   def initialize(options)
@@ -67,8 +57,8 @@ class Counter < RubarbPlugin
 end
 
 
-class Script < RubarbPlugin
-  add_option :exec
+class Rubarb::Script < Rubarb::RubarbPlugin
+  add_option :sh
 
   def run
     process.gets # still might need to catch something here.   TODO try busted scripts
@@ -82,12 +72,12 @@ class Script < RubarbPlugin
 
   def process
     @process = @process.close if @process && @process.eof?
-    @process ||= IO.popen(@exec) 
+    @process ||= IO.popen(@sh) 
   end 
 end 
 
 
-class Clock < RubarbPlugin
+class Rubarb::Clock < Rubarb::RubarbPlugin
   def run
     Time.now
   end

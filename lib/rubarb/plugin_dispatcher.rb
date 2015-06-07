@@ -2,6 +2,18 @@ class PluginDispatcher
   attr_accessor :name
   attr_reader :io_read
 
+  # should plugin finder be distinct from plugin dispatcher?
+  def self.plugins
+    all_plugins.map { |name| plugin_name(name) }
+  end
+
+  def self.plugin(name)
+    plugin = all_plugins.find do |class_name| 
+      plugin_name(class_name) == name
+    end 
+    Rubarb.const_get plugin
+  end
+
   # respawn or options seems nice, but is respawn really always option number one?  a shell script that I don't expect to respawn would have a file name come first.
   def initialize(rubarb, name, &block)
     # https://robots.thoughtbot.com/ruby-2-keyword-arguments
@@ -30,13 +42,23 @@ class PluginDispatcher
   private
 
   def load_plugin(name, block)
-    klass = Object.const_get("#{name.capitalize}")
-    return unless klass.superclass == RubarbPlugin
+    plugin = PluginDispatcher.plugin(name)
     options = if block
-      #MetaConfigReader.new(klass.options).parse(block)
-      InstanceVarConfigReader.parse(block)
+      cfg = ClassNameMethodConfigReader.new(plugin.options)
+      cfg.parse(block).config.to_h
     end 
 
-    plugin = klass.new(options)
+    plugin = plugin.new(options)
   end 
+
+  def self.all_plugins
+    Rubarb.constants.select do |constant| 
+      Rubarb.const_get(constant).is_a?(Class) && constant != :RubarbPlugin
+    end
+  end 
+
+  def self.plugin_name(class_name)
+    class_name.to_s.downcase.to_sym
+  end
+
 end

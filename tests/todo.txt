@@ -1,0 +1,11 @@
+#TODO - write tests
+
+This project has been pretty experimental.  Without a clear picture of where it was going testing everything didn't really make sense.  Here are some corners that should be tested once the architecture solidifies.
+
+# Config reader
+## Throw heredocs at it.  Should be a way to override the hardcoded rc file
+## Make sure a useful error shows up when an invalid plugin is called
+## Ditto for invalid options
+## Make sure it reads strings and blocks
+# Individual plugins
+## No idea how to test long running ones, aside from

@@ -34,9 +34,11 @@ class ClassNameMethodConfigReader
     @config = []
   end
 
-  # can config work as a block or a string?  go ruby!
   def parse(config)
-    instance_eval config 
+    case config
+    when Proc then self.instance_eval(&config)
+    else self.instance_eval(config)
+    end 
     self
   end
 

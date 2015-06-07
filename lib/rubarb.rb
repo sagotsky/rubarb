@@ -2,23 +2,28 @@
 
 require 'pry'
 require 'ostruct'
-Dir.glob('rubarb/*').each { |file| require_relative file }
-# also load up ~/.rubarb/plugins/*
 
 class Rubarb
   def initialize
-    @dispatchers = []
-    #eval File.read('../rubarbrc') # is eval still the best we can do?  
-    #instance_eval File.read( '../rubarbrc')
-    rc = ClassNameMethodConfigReader.new(RubarbPlugin.plugins)
+    config_options = PluginDispatcher.plugins + %i[bar template]
+    rc = ClassNameMethodConfigReader.new(config_options)
     config = rc.parse_file('../rubarbrc').config
 
-    @dispatchers = config.map do |name, *args|
-      PluginDispatcher.new(self, *args, &block)
+    #uuuuugggghhhhh
+    config, plugins= config.partition do |cfg|
+      %i[bar template].include? cfg.first
     end
+
+    config.each do |key, val|
+      self.send key, val
+    end
+
+    @dispatchers = plugins.map do |name, *args|
+      PluginDispatcher.new(self, name, &args.first)
+    end
+
     @threads = dispatcher_threads
     @running = @threads.any?
-    # if rubarb is doing a weird syntax setting plugin reader, why not reuse it in plugins?
 
     while @running do 
       refresh_dispatchers
@@ -27,25 +32,13 @@ class Rubarb
     end 
   end
 
-  # TODO: this
-  RubarbPlugin.plugins.each do |plugin|
-    define_method plugin do |&block|
-      plugin
-    end 
-  end
-
-  # maybe com cmd or something would be better?  run seems disingenous since it's just registering them.
-  def run(*args, &block)
-    # run/com/script should just be syntactic sugar for setting up the RubarbScript plugin
-    @dispatchers << PluginDispatcher.new(self, *args, &block)
-  end
 
   def bar(exec_string = nil)
     @bar ||= IO.popen(exec_string, 'w') rescue nil
   end
 
-  def template(&block)
-    @template = RubarbTemplate.new(block)
+  def template(block)
+    @template = RubarbTemplate.new(&block)
   end
 
   def show(text)
@@ -71,5 +64,7 @@ class Rubarb
     #@dispatcher.values.each &:join
   #end 
 end
+
+Dir.glob('rubarb/*').each { |file| require_relative file }
 
 Rubarb.new
