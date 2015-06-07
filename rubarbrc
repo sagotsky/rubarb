@@ -6,26 +6,26 @@ clock {
 }
 
 script {
+  render {|txt| txt.upcase} # format is taken.  render is meh.  formatter?
   sh 'fortune ; sleep 1; date ; sleep 2; fortune'
   respawn 5
-  #format -> {txt.upcase}
 }
 
-bar "bar -p"
+#bar "bar -p"
 
 template do 
   "#{clock} - #{counter} :: #{script}"
 end
 
 __END__
-# isn't `run :counter &block` the same as `format block`  could a single dsl work both ways if it knew about the options in advance?
+# isn't `run :counter &block` the same as `render block`  could a single dsl work both ways if it knew about the options in advance?
 run :counter do 
   @respawn = 30
   @color = 'red'
-  @format = -> (txt) { txt*2 }
+  @render = -> (txt) { txt*2 }
   #respawn 1
   #color 'red'
-  #format { |txt| txt*2 }
+  #render { |txt| txt*2 }
 end 
 
 run :clock do
@@ -51,7 +51,7 @@ end
 #plugin :clock do 
   # what the ehll options tdo  Ihgive a clock?
 #end
-# override the name, format functions
+# override the name, render functions
 
 # as long as we're spawning all these scripts might as well manage the bar itself too
 #bar "dzen2 -ta l -xs 0"

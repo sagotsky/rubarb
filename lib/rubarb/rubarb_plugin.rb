@@ -1,11 +1,12 @@
 class Rubarb::RubarbPlugin
-  @@options = %i[format respawn]
+  @@options = %i[render respawn]
 
   def self.options
     # todo: somehow differentiate that format takes a proc
     @@options.dup
   end
 
+  # should have some validation.  some are options, some are required.  type checking wouldn't be bad either.
   def self.add_option(name)
     @@options << name
   end
@@ -15,9 +16,9 @@ class Rubarb::RubarbPlugin
   end
 
   # turns output into string for display.  does it make sense for a plugin to override the cal to the lambda?
-  def format(output)
+  def render(output)
     output = output.to_s.strip
-    output = @format.call(output) if @format
+    output = @render.call(output) if @render
     output
   end
 

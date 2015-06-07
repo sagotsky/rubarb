@@ -9,7 +9,7 @@ script_plugin {
   exec '/path/to/file'
   respawn 60
   token 'myscript'
-  format { |txt| txt.capitalize }
+  render { |txt| txt.capitalize }
 }
 =end 
 

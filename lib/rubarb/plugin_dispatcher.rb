@@ -36,7 +36,7 @@ class PluginDispatcher
   end
 
   def output
-    @plugin.format @output
+    @plugin.render @output
   end
 
   private
