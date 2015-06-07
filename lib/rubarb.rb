@@ -4,22 +4,19 @@ require 'pry'
 require 'ostruct'
 
 class Rubarb
+  RUBARB_CONF = %i[bar template]
   def initialize
-    config_options = PluginDispatcher.plugins + %i[bar template]
+    @dispatchers = []
+    config_options = PluginDispatcher.plugins + RUBARB_CONF
     rc = ClassNameMethodConfigReader.new(config_options)
     config = rc.parse_file('../rubarbrc').config
 
-    #uuuuugggghhhhh
-    config, plugins= config.partition do |cfg|
-      %i[bar template].include? cfg.first
-    end
-
-    config.each do |key, val|
-      self.send key, val
-    end
-
-    @dispatchers = plugins.map do |name, *args|
-      PluginDispatcher.new(self, name, &args.first)
+    config.each do |key, *values|
+      if RUBARB_CONF.include? key
+        self.send key, *values
+      else 
+        plugin key, *values
+      end 
     end
 
     @threads = dispatcher_threads
@@ -32,6 +29,9 @@ class Rubarb
     end 
   end
 
+  def plugin(name, block)
+    @dispatchers << PluginDispatcher.new(self, name, &block)
+  end
 
   def bar(exec_string = nil)
     @bar ||= IO.popen(exec_string, 'w') rescue nil
