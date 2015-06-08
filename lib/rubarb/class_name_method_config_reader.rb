@@ -17,6 +17,7 @@ script_plugin {
 class ClassNameMethodConfigReader
   attr_reader :config
 
+  # todo: figure out how to get define_method to take args or a block
   def method_missing(method_name, *args, &block)
     if respond_to?(method_name)
       @config << [method_name].concat(block_given? ? [block] : args)

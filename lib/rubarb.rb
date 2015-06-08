@@ -62,6 +62,7 @@ class Rubarb
 
   #def exit
     #@dispatcher.values.each &:join
+    # also the bar.
   #end 
 end
 

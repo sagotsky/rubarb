@@ -11,7 +11,7 @@ script {
   respawn 5
 }
 
-#bar "bar -p"
+bar "bar"
 
 template do 
   "#{clock} - #{counter} :: #{script}"

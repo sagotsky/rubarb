@@ -14,14 +14,12 @@ class PluginDispatcher
     Rubarb.const_get plugin
   end
 
-  # respawn or options seems nice, but is respawn really always option number one?  a shell script that I don't expect to respawn would have a file name come first.
   def initialize(rubarb, name, &block)
-    # https://robots.thoughtbot.com/ruby-2-keyword-arguments
     @name = name
     @rubarb = rubarb
     @output = ''
     @plugin = load_plugin(name, block)
-    @io_read, @io_write = IO.pipe # seems like an implementation detail, but we need to call select on them later, so maybe it's relevant?
+    @io_read, @io_write = IO.pipe 
   end
 
   def run
