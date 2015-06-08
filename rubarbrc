@@ -13,8 +13,10 @@ script {
 
 bar "bar" # don't use -p or it won't die
 
+stdin {} #todo: figure out how to get this to work with no args.  block vs some args is already fugly and probably needs a rewrite.
+
 template do 
-  "#{date} - #{counter} :: #{script}"
+  "#{date} - #{counter} :: #{script} = #{stdin}"
 end
 
 __END__
