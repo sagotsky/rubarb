@@ -1,6 +1,5 @@
 # vim: set ft=ruby:
 
-
 clock {
   respawn 5
   token :date

@@ -66,6 +66,8 @@ class Rubarb
   #end 
 end
 
-Dir.glob('rubarb/*').each { |file| require_relative file }
+Dir.glob('rubarb/*.rb').each { |file| require_relative file }
+Dir.glob('rubarb/plugins/*.rb').each { |file| require_relative file }
+# how about ~/.rubarb/
 
 Rubarb.new

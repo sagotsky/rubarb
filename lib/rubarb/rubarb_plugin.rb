@@ -34,46 +34,12 @@ class Rubarb::RubarbPlugin
 end
 
 
-# this plugin is stupid, but a decent example if you want to watch the cache update on schedule
-class Rubarb::Counter < Rubarb::RubarbPlugin
-  add_option :color
-
-  def initialize(options)
-    super(options)
-    @counter = 0
-  end
-  
-  def run
-    @counter += 1
-  end
-end
 
 
-class Rubarb::Script < Rubarb::RubarbPlugin
-  add_option :sh
-
-  def run
-    process.gets # still might need to catch something here.   TODO try busted scripts
-  end
-
-  def respawn
-    @process.eof? ? super : 0
-  end
-
-  private
-
-  def process
-    @process = @process.close if @process && @process.eof?
-    @process ||= IO.popen(@sh) 
-  end 
-end 
+ 
 
 
-class Rubarb::Clock < Rubarb::RubarbPlugin
-  def run
-    Time.now
-  end
-end
+
 
 class Rubarb::FileReader < Rubarb::RubarbPlugin
 end
