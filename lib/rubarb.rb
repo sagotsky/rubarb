@@ -24,7 +24,7 @@ class Rubarb
 
     while @running do 
       refresh_dispatchers
-      plugin_output = @dispatchers.map { |r| [ r.name, r.output ] }.to_h
+      plugin_output = @dispatchers.map { |r| [ r.token, r.output ] }.to_h
       show @template.render(plugin_output)
     end 
   end
@@ -47,7 +47,7 @@ class Rubarb
 
   def dispatcher_threads
     @dispatchers.map do |dispatcher|
-      [dispatcher.name, Thread.new { dispatcher.run }]
+      [dispatcher.token, Thread.new { dispatcher.run }]
     end.to_h
   end 
 

@@ -1,6 +1,8 @@
 class PluginDispatcher
-  attr_accessor :name
+  attr_accessor :token
   attr_reader :io_read
+
+  ATTRS = %i[token]
 
   # should plugin finder be distinct from plugin dispatcher?
   def self.plugins
@@ -15,7 +17,6 @@ class PluginDispatcher
   end
 
   def initialize(rubarb, name, &block)
-    @name = name
     @rubarb = rubarb
     @output = ''
     @plugin = load_plugin(name, block)
@@ -42,8 +43,12 @@ class PluginDispatcher
   def load_plugin(name, block)
     plugin = PluginDispatcher.plugin(name)
     options = if block
-      cfg = ClassNameMethodConfigReader.new(plugin.options)
+      cfg = ClassNameMethodConfigReader.new(plugin.options + ATTRS)
       cfg.parse(block).config.to_h
+    end 
+
+    ATTRS.each do |attr|
+      send "#{attr}=", options.delete(:token) || name # this should be elsewhere, but splititng load_plugin felt worse
     end 
 
     plugin = plugin.new(options)

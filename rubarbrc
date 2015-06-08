@@ -3,6 +3,7 @@
 
 clock {
   respawn 5
+  token :date
 }
 
 script {
@@ -11,10 +12,10 @@ script {
   respawn 5
 }
 
-bar "bar"
+bar "bar" # don't use -p or it won't die
 
 template do 
-  "#{clock} - #{counter} :: #{script}"
+  "#{date} - #{counter} :: #{script}"
 end
 
 __END__
