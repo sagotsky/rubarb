@@ -11,6 +11,11 @@ class Rubarb
     rc = ClassNameMethodConfigReader.new(config_options)
     config = rc.parse_file('../rubarbrc').config
 
+    exit
+    # instead of .config returning a hash full of values to figure out, lets do this declaratively
+    # config gets a .get or .fetch method that returns just the requested value.  maybe slice.
+    # now we can loop over rubarb opts and then plugin args.
+
     config.each do |key, *values|
       if RUBARB_CONF.include? key
         self.send key, *values
