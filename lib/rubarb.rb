@@ -8,20 +8,15 @@ class Rubarb
   def initialize
     @dispatchers = []
     config_options = PluginDispatcher.plugins + RUBARB_CONF
-    rc = ClassNameMethodConfigReader.new(config_options)
-    config = rc.parse_file('../rubarbrc').config
+    cfg = ClassNameMethodConfigReader.new(config_options)
+    cfg.parse_file('../rubarbrc')
 
-    exit
-    # instead of .config returning a hash full of values to figure out, lets do this declaratively
-    # config gets a .get or .fetch method that returns just the requested value.  maybe slice.
-    # now we can loop over rubarb opts and then plugin args.
+    cfg.slice(RUBARB_CONF).each do |attr, args|
+      send attr, args
+    end
 
-    config.each do |key, *values|
-      if RUBARB_CONF.include? key
-        self.send key, *values
-      else 
-        plugin key, *values
-      end 
+    cfg.slice(PluginDispatcher.plugins).each do |plugin, args|
+      dispatch_plugin plugin, args
     end
 
     @threads = dispatcher_threads
@@ -34,7 +29,7 @@ class Rubarb
     end 
   end
 
-  def plugin(name, block)
+  def dispatch_plugin(name, block)
     @dispatchers << PluginDispatcher.new(self, name, &block)
   end
 

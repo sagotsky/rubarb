@@ -15,8 +15,6 @@ script_plugin {
 
 # requires list of config options, makes a setter for each
 class ClassNameMethodConfigReader
-  attr_reader :config
-
   # todo: figure out how to get define_method to take args or a block
   def method_missing(method_name, *args, &block)
     if respond_to?(method_name)
@@ -37,15 +35,21 @@ class ClassNameMethodConfigReader
 
   def parse(config)
     case config
-    when Proc then self.instance_eval(&config)
-    else self.instance_eval(config)
+      when Proc then self.instance_eval(&config)
+      else self.instance_eval(config)
     end 
-    self
   end
 
   def parse_file(file)
     parse File.read(file)
-    self
+  end
+
+  def find(key)
+    @config.to_h.fetch(key, nil)
+  end
+
+  def slice(keys)
+    @config.select { |key, value| keys.include? key }
   end
 end
 

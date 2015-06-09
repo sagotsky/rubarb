@@ -8,4 +8,8 @@ This project has been pretty experimental.  Without a clear picture of where it 
 ## Ditto for invalid options
 ## Make sure it reads strings and blocks
 # Individual plugins
-## No idea how to test long running ones, aside from
+## No idea how to test long running ones, aside from timecop and checking output
+## Script runner may not have to check respawn, just that a script does its thing
+## Starrt some scripts with relatively prime respawns.  Ignore the first n.  Compare the rest determinisitcally.  For overengineering bonus points, set those respawns programatically.
+
+

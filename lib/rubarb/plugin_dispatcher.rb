@@ -19,8 +19,13 @@ class PluginDispatcher
   def initialize(rubarb, name, &block)
     @rubarb = rubarb
     @output = ''
-    @plugin = load_plugin(name, block)
     @io_read, @io_write = IO.pipe 
+
+    plugin_opts = PluginDispatcher.plugin(name).options 
+    cfg = ClassNameMethodConfigReader.new(plugin_opts + ATTRS)
+    cfg.parse(block)
+    @token = cfg.find(:token) || name
+    @plugin = load_plugin(name, cfg.slice(plugin_opts).to_h)
   end
 
   def run
@@ -40,18 +45,8 @@ class PluginDispatcher
 
   private
 
-  def load_plugin(name, block)
-    plugin = PluginDispatcher.plugin(name)
-    options = if block
-      cfg = ClassNameMethodConfigReader.new(plugin.options + ATTRS)
-      cfg.parse(block).config.to_h
-    end 
-
-    ATTRS.each do |attr|
-      send "#{attr}=", options.delete(:token) || name # this should be elsewhere, but splititng load_plugin felt worse
-    end 
-
-    plugin = plugin.new(options)
+  def load_plugin(name, options)
+    PluginDispatcher.plugin(name).new(options)
   end 
 
   def self.all_plugins
