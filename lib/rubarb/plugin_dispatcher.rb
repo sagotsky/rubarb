@@ -22,7 +22,7 @@ class PluginDispatcher
     @io_read, @io_write = IO.pipe 
 
     plugin_opts = PluginDispatcher.plugin(name).options 
-    cfg = ClassNameMethodConfigReader.new(plugin_opts + ATTRS)
+    cfg = ConfigReader.new(plugin_opts + ATTRS)
     cfg.parse(block)
     @token = cfg.find(:token) || name
     @plugin = load_plugin(name, cfg.slice(plugin_opts).to_h)

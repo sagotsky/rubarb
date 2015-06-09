@@ -14,7 +14,7 @@ script_plugin {
 =end 
 
 # requires list of config options, makes a setter for each
-class ClassNameMethodConfigReader
+class ConfigReader
   # todo: figure out how to get define_method to take args or a block
   def method_missing(method_name, *args, &block)
     if respond_to?(method_name)

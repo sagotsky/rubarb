@@ -8,7 +8,7 @@ class Rubarb
   def initialize
     @dispatchers = []
     config_options = PluginDispatcher.plugins + RUBARB_CONF
-    cfg = ClassNameMethodConfigReader.new(config_options)
+    cfg = ConfigReader.new(config_options)
     cfg.parse_file('../rubarbrc')
 
     cfg.slice(RUBARB_CONF).each do |attr, args|
