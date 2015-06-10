@@ -12,11 +12,11 @@ class Rubarb
     cfg.parse_file('../rubarbrc')
 
     cfg.slice(RUBARB_CONF).each do |attr, args|
-      send attr, args
+      send attr, *args
     end
 
     cfg.slice(PluginDispatcher.plugins).each do |plugin, args|
-      dispatch_plugin plugin, args
+      dispatch_plugin plugin, *args
     end
 
     @threads = dispatcher_threads

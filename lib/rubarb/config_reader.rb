@@ -15,22 +15,13 @@ script_plugin {
 
 # requires list of config options, makes a setter for each
 class ConfigReader
-  # todo: figure out how to get define_method to take args or a block
-  def method_missing(method_name, *args, &block)
-    if respond_to?(method_name)
-      @config << [method_name].concat(block_given? ? [block] : args)
-    else 
-      super
+  def initialize(options = [])
+    @_config = []
+    options.map(&:downcase).map(&:to_sym).each do |option|
+      define_singleton_method option do |*args, &block|
+        @_config << [option, [*args, block].compact]
+      end
     end
-  end
-
-  def respond_to?(method_name)
-    @capture.include?(method_name) 
-  end
-
-  def initialize(capture = [])
-    @capture = capture.map(&:downcase).map(&:to_sym)
-    @config = []
   end
 
   def parse(config)
@@ -45,11 +36,18 @@ class ConfigReader
   end
 
   def find(key)
-    @config.to_h.fetch(key, nil)
+    value = @_config.to_h.fetch(key, nil)
+    value ? value[0] : nil
   end
 
   def slice(keys)
-    @config.select { |key, value| keys.include? key }
+    @_config.select { |key, value| keys.include? key }
+  end
+
+  def hash_slice(keys)
+    slice(keys).map do |k,v| 
+      [k, v.first]
+    end.to_h
   end
 end
 

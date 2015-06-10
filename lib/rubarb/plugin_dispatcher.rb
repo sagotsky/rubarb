@@ -25,7 +25,7 @@ class PluginDispatcher
     cfg = ConfigReader.new(plugin_opts + ATTRS)
     cfg.parse(block)
     @token = cfg.find(:token) || name
-    @plugin = load_plugin(name, cfg.slice(plugin_opts).to_h)
+    @plugin = load_plugin(name, cfg.hash_slice(plugin_opts))
   end
 
   def run
