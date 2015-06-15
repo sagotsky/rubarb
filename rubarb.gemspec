@@ -5,20 +5,21 @@ require 'rubarb/version'
 
 Gem::Specification.new do |spec|
   spec.name        = 'rubarb'
-  spec.version     = '0.0.0'
+  spec.version     = Rubarb::VERSION
   spec.summary     = "Ruby Bar Boss"
   spec.description = "Process manager for running a bar for any tiling WM."
   spec.authors     = ["Jon Sagotsky"]
   spec.email       = 'valadil@gmail.com'
   spec.homepage    = 'https://github.com/sagotsky/rubarb'
-  spec.files       = ["lib/rubarb.rb"]
+  #cspec.files       = Dir.glob("{bin,lib}/**/*") + %w{bin  Gemfile  LICENSE.txt  Rakefile  README.md  rubarb.gemspec  rubarbrc}
+  spec.files       = `git ls-files`.split($/)
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ["lib"]
+  spec.require_paths = ["lib", "lib/rubarb", "lib/rubarb/plugins"]
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "pry"
 end

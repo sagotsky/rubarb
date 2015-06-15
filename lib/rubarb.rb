@@ -4,22 +4,24 @@ require 'rubarb/version'
 require 'ostruct'
 require 'pry'
 require 'rubarb/plugin_dispatcher'
+require 'rubarb/config_reader'
+require 'rubarb/rubarb_plugin'
+require 'rubarb/rubarb_template'
 
 module Rubarb
   class Threader
     RUBARB_CONF = %i[bar template]
     def initialize
       @dispatchers = []
-      binding.pry 
       config_options = Rubarb::PluginDispatcher.plugins + RUBARB_CONF
-      cfg = ConfigReader.new(config_options)
-      cfg.parse_file('../rubarbrc')
+      cfg = Rubarb::ConfigReader.new(config_options)
+      cfg.parse_file "#{ENV['HOME']}/.rubarbrc"
 
       cfg.slice(RUBARB_CONF).each do |attr, args|
         send attr, *args
       end
 
-      cfg.slice(PluginDispatcher.plugins).each do |plugin, args|
+      cfg.slice(Rubarb::PluginDispatcher.plugins).each do |plugin, args|
         dispatch_plugin plugin, *args
       end
 
@@ -34,7 +36,7 @@ module Rubarb
     end
 
     def dispatch_plugin(name, block)
-      @dispatchers << PluginDispatcher.new(self, name, &block)
+      @dispatchers << Rubarb::PluginDispatcher.new(self, name, &block)
     end
 
     def bar(exec_string = nil)
@@ -42,7 +44,7 @@ module Rubarb
     end
 
     def template(block)
-      @template = RubarbTemplate.new(&block)
+      @template = Rubarb::RubarbTemplate.new(&block)
     end
 
     def show(text)

@@ -14,41 +14,41 @@ script_plugin {
 =end 
 
 # requires list of config options, makes a setter for each
-class ConfigReader
-  def initialize(options = [])
-    @_config = []
-    options.map(&:downcase).map(&:to_sym).each do |option|
-      define_singleton_method option do |*args, &block|
-        @_config << [option, [*args, block].compact]
+module Rubarb
+  class ConfigReader
+    def initialize(options = [])
+      @_config = []
+      options.map(&:downcase).map(&:to_sym).each do |option|
+        define_singleton_method option do |*args, &block|
+          @_config << [option, [*args, block].compact]
+        end
       end
     end
-  end
 
-  def parse(config)
-    case config
+    def parse(config)
+      case config
       when Proc then self.instance_eval(&config)
       else self.instance_eval(config)
-    end 
+      end 
+    end
+
+    def parse_file(file)
+      parse File.read(file)
+    end
+
+    def find(key)
+      value = @_config.to_h.fetch(key, nil)
+      value ? value[0] : nil
+    end
+
+    def slice(keys)
+      @_config.select { |key, value| keys.include? key }
+    end
+
+    def hash_slice(keys)
+      slice(keys).map do |k,v| 
+        [k, v.first]
+      end.to_h
+    end
   end
-
-  def parse_file(file)
-    parse File.read(file)
-  end
-
-  def find(key)
-    value = @_config.to_h.fetch(key, nil)
-    value ? value[0] : nil
-  end
-
-  def slice(keys)
-    @_config.select { |key, value| keys.include? key }
-  end
-
-  def hash_slice(keys)
-    slice(keys).map do |k,v| 
-      [k, v.first]
-    end.to_h
-  end
-end
-
-
+end 
