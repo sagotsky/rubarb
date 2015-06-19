@@ -1,12 +1,7 @@
 #!/usr/bin/env ruby
 
-#Dir.glob('rubarb/*.rb').each { |file| require_relative file }
-#Dir.glob('rubarb/plugins/*.rb').each { |file| require_relative file }
-# how about ~/.rubarb/
-
 require 'rubarb'
-
-Rubarb::Threader.new
+Rubarb.new
 
 
 

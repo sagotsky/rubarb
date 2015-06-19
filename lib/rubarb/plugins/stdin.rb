@@ -1,5 +1,5 @@
 module Rubarb
-  class Rubarb::Stdin < Rubarb::RubarbPlugin
+  class Stdin < RubarbPlugin
     def run
       STDIN.gets
     end

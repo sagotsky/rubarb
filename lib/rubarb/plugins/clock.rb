@@ -1,5 +1,5 @@
 module Rubarb
-  class Rubarb::Clock < Rubarb::RubarbPlugin
+  class Clock < RubarbPlugin
     def run
       Time.now
     end

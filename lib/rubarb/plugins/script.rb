@@ -1,5 +1,5 @@
 module Rubarb
-  class Rubarb::Script < Rubarb::RubarbPlugin
+  class Script < RubarbPlugin
     add_option :sh
 
     def run

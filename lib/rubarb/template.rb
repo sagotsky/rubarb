@@ -1,5 +1,5 @@
 module Rubarb
-  class RubarbTemplate
+  class Template
     def initialize(&block)
       @template = block
     end

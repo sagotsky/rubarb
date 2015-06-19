@@ -1,6 +1,6 @@
 module Rubarb
   # this plugin is stupid, but a decent example if you want to watch the cache update on schedule
-  class Rubarb::Counter < Rubarb::RubarbPlugin
+  class Counter < RubarbPlugin
     add_option :color
 
     def initialize(options)

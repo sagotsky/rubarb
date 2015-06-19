@@ -1,5 +1,5 @@
 module Rubarb 
-  class Rubarb::RubarbPlugin
+  class RubarbPlugin
     @@options = %i[render respawn]
 
     def self.options
@@ -18,7 +18,7 @@ module Rubarb
     # turns output into string for display.  does it make sense for a plugin to override the cal to the lambda?
     def render(output)
       output = output.to_s.strip
-      # or should this use a RubarbTemplate so we can eliminate the block args?
+      # or should this use a Template so we can eliminate the block args?
       output = @render.call(output) if @render
       output
     end
@@ -34,18 +34,10 @@ module Rubarb
     end
   end
 
-
-
-
-   
-
-
-
-
-  class Rubarb::FileReader < Rubarb::RubarbPlugin
+  class FileReader < RubarbPlugin
   end
 
-  #class Rubarb::Wm < Rubarb::RubarbPlugin
+  #class Wm < RubarbPlugin
     # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
   # end 
 

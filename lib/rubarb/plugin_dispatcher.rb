@@ -5,7 +5,6 @@ module Rubarb
 
     ATTRS = %i[token]
 
-    # should plugin finder be distinct from plugin dispatcher?
     def self.plugins
       all_plugins.map { |name| plugin_name(name) }
     end
@@ -22,8 +21,8 @@ module Rubarb
       @output = ''
       @io_read, @io_write = IO.pipe 
 
-      plugin_opts = Rubarb::PluginDispatcher.plugin(name).options 
-      cfg = Rubarb::ConfigReader.new(plugin_opts + ATTRS)
+      plugin_opts = PluginDispatcher.plugin(name).options 
+      cfg = ConfigReader.new(plugin_opts + ATTRS)
       cfg.parse(block)
       @token = cfg.find(:token) || name
       @plugin = load_plugin(name, cfg.hash_slice(plugin_opts))
@@ -47,7 +46,7 @@ module Rubarb
     private
 
     def load_plugin(name, options)
-      Rubarb::PluginDispatcher.plugin(name).new(options)
+      PluginDispatcher.plugin(name).new(options)
     end 
 
     def self.all_plugins
@@ -65,6 +64,5 @@ module Rubarb
     def self.plugin_name(class_name)
       class_name.to_s.downcase.to_sym
     end
-
   end
 end 
