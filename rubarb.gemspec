@@ -11,7 +11,6 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Jon Sagotsky"]
   spec.email       = 'valadil@gmail.com'
   spec.homepage    = 'https://github.com/sagotsky/rubarb'
-  #cspec.files       = Dir.glob("{bin,lib}/**/*") + %w{bin  Gemfile  LICENSE.txt  Rakefile  README.md  rubarb.gemspec  rubarbrc}
   spec.files       = `git ls-files`.split($/)
   spec.license       = "MIT"
 
@@ -22,4 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "pry"
+  spec.add_development_dependency "mocha"
 end
