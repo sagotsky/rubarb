@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class PluginsTest < MiniTest::Unit::TestCase
-  describe "#plugins" do
+  describe "#plugin output" do
     let (:clock) { Rubarb::Clock.new({}) }
 
     let (:script) do
@@ -9,6 +9,8 @@ class PluginsTest < MiniTest::Unit::TestCase
     end
 
     let (:counter) { Rubarb::Counter.new({}) }
+
+    let (:memory) { Rubarb::Memory.new({}) }
 
     it "clock" do
       Time.now.to_s.must_equal clock.run.to_s
@@ -20,6 +22,12 @@ class PluginsTest < MiniTest::Unit::TestCase
 
     it "counter" do
       Array.new(4).map{ counter.run }.must_equal [1,2,3,4]
+    end
+
+    it "memory" do
+      usage = memory.run
+      usage.must_be :>=, 0
+      usage.must_be :<=, 100
     end
   end
 end

@@ -57,7 +57,7 @@ module Rubarb
 
         Rubarb.constants.select do |constant| 
           klass = Rubarb.const_get constant
-          klass.is_a?(Class) && klass.ancestors.include?(Rubarb::RubarbPlugin)
+          klass.is_a?(Class) && klass.ancestors.include?(Rubarb::RubarbPlugin) && klass != self
         end
       end 
     end 
