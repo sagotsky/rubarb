@@ -10,8 +10,7 @@ module Rubarb
     private
 
     def get_entry(name, meminfo)
-      #MemAvailable:    5956148 kB
-      meminfo.scan(/#{name}.*/).first.split(' ')[1].to_f
+      meminfo.scan(/#{name}.*/).first.split(' ')[1].to_f rescue raise 'MemAvailable missing from /proc/meminfo.  Try a newer kernel.'
     end
   end
 end

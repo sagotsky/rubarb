@@ -12,6 +12,8 @@ class PluginsTest < MiniTest::Unit::TestCase
 
     let (:memory) { Rubarb::Memory.new({}) }
 
+    let (:cpu) { Rubarb::Cpu.new({}) }
+
     it "clock" do
       Time.now.to_s.must_equal clock.run.to_s
     end 
@@ -26,6 +28,12 @@ class PluginsTest < MiniTest::Unit::TestCase
 
     it "memory" do
       usage = memory.run
+      usage.must_be :>=, 0
+      usage.must_be :<=, 100
+    end
+
+    it "cpu" do
+      usage = cpu.run
       usage.must_be :>=, 0
       usage.must_be :<=, 100
     end
