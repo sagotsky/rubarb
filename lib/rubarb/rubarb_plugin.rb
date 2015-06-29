@@ -1,14 +1,15 @@
 module Rubarb 
   class RubarbPlugin
-    @@options = %i[render respawn]
+    @options = %i[render respawn]
 
     def self.options
-      @@options.dup
+      @options ||= self.ancestors[1].instance_variable_get('@options') 
+      @options.dup 
     end
 
     # should have some validation.  some are options, some are required.  type checking wouldn't be bad either.  also defaults.
     def self.add_option(name)
-      @@options << name
+      instance_variable_set '@options', options.push(name)
     end
 
     def run
@@ -28,7 +29,7 @@ module Rubarb
     end
 
     def initialize(options)
-      @@options.each do |option|
+      self.class.options.each do |option|
         instance_variable_set("@#{option}", options.fetch(option, nil))
       end
     end
