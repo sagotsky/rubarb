@@ -30,7 +30,7 @@ module Rubarb
 
     def run
       loop do 
-        @io_write.puts @plugin.run
+        run_plugin
         sleep @plugin.respawn
       end 
     end
@@ -44,6 +44,10 @@ module Rubarb
     end
 
     private
+
+    def run_plugin
+      @io_write.puts @plugin.run
+    end 
 
     def load_plugin(name, options)
       PluginDispatcher.plugin(name).new(options)

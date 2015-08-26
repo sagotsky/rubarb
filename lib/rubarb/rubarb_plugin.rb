@@ -35,8 +35,6 @@ module Rubarb
     end
   end
 
-  class FileReader < RubarbPlugin
-  end
 
   #class Wm < RubarbPlugin
     # maybe this would be a better place than ewmhstatus to subscribe to wm notifications?
