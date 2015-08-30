@@ -3,11 +3,21 @@ require 'test_helper'
 class RubarbTest < MiniTest::Unit::TestCase
   describe "rubarb" do
     let (:rubarb) do
-      Rubarb.new # this can't read from rubarbrc..
+      Rubarb.new config: <<-'EOF'
+        clock {
+          respawn 5
+          token :date
+        }
+
+        template do 
+          "#{date}"
+        end
+      EOF
     end 
 
     it "'s alive!" do
-      rubarb.run
+      rubarb
+      puts 'ran'
     end
   end 
 end 
