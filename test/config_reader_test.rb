@@ -29,7 +29,7 @@ class ConfigReaderTest < MiniTest::Unit::TestCase
 
     it "evals a config block" do 
       expects = {foo: 1, bar: 2, baz: 3}.map {|k,v| [k, [v]]}
-      reader.parse(cfg_block)
+      reader.parse(cfg_block).must_equal expects
     end
 
     it "can store a proc in config" do 
