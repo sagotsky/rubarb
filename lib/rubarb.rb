@@ -9,18 +9,24 @@ require 'rubarb/rubarb_plugin'
 require 'rubarb/template'
 
 module Rubarb
-  def self.new
-    Manager.new
+  RUBARB_CONF = %i[bar template]
+
+  def self.new(file: "#{ENV['HOME']}/.rubarbrc", config: nil)
+    config_options = PluginDispatcher.plugins + RUBARB_CONF
+    cfg = ConfigReader.new(config_options)
+
+    if config
+      cfg.parse(config)
+    else
+      cfg.parse_file(file)
+    end
+
+    Manager.new(cfg)
   end 
 
   class Manager
-    RUBARB_CONF = %i[bar template]
-    def initialize
+    def initialize(cfg)
       @dispatchers = []
-
-      config_options = PluginDispatcher.plugins + RUBARB_CONF
-      cfg = ConfigReader.new(config_options)
-      cfg.parse_file "#{ENV['HOME']}/.rubarbrc"
 
       cfg.slice(RUBARB_CONF).each do |attr, args|
         send attr, *args
@@ -63,12 +69,14 @@ module Rubarb
     end 
 
     def refresh_dispatchers 
-      read_array, _, error_array = IO.select(@dispatchers.map(&:io_read))
-      @dispatchers.find_all{|dispatcher| read_array.include?(dispatcher.io_read) }.each(&:refresh)
+      read_array, _, _ = IO.select(@dispatchers.map(&:io_read))
+      @dispatchers.find_all do |dispatcher| 
+        read_array.include?(dispatcher.io_read) 
+      end.each(&:refresh)
     end
 
     def ls
-      @dispatchers.map &:to_s
+      @dispatchers.map(&:to_s)
     end
 
     #def exit
